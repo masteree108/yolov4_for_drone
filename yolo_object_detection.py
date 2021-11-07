@@ -11,23 +11,21 @@ import os
 
 
 class yolo_object_detection():
-# private
+    # private
     __labelsPath = "./yolo-coco_v4/coco.names"
     __weightsPath = "yolo-coco_v4/yolov4.weights"
     __configPath = "yolo-coco_v4/yolov4.cfg"
     __confidence_setting = 0.5
     __threshold = 0.2
 
-# public
+    # public
     def __init__(self, target_label):
         np.random.seed(42)
         self.__LABELS = open(self.__labelsPath).read().strip().split("\n")
         self.__COLORS = np.random.randint(0, 255, size=(len(self.__LABELS), 3), dtype="uint8")
         self.__target_label = target_label
 
-
-
-    def run_detection(self, frame, ):
+    def run_detection(self, frame ):
         # determine only the *output* layer names that we need from YOLO
         self.__net = cv2.dnn.readNetFromDarknet(self.__configPath, self.__weightsPath)
         # determine only the *output* layer names that we need from YOLO
@@ -146,50 +144,50 @@ class yolo_object_detection():
                 # extract the bounding box coordinates
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-                #x = x + int(w/5)
+                # x = x + int(w/5)
                 # draw a bounding box rectangle and label on the frame
                 if self.__LABELS[classIDs[i]] == self.__target_label:
                     color = [int(c) for c in self.__COLORS[classIDs[i]]]
                     cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
                     text = "{}: {:.4f}".format(self.__LABELS[classIDs[i]], confidences[i])
                     cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-        cv2.imwrite("frame.jpg",frame)
+        print(boxes)
+        cv2.imwrite("frame.jpg", frame)
         return boxes
 
+    def IOU_check_for_first_frame(self,src_bbox, adjust_bboxes):
+        print("IoU method(first_frame)")
+        iou_temp = []
+        boxSRCArea = (src_bbox[2] + 1) * (src_bbox[3] + 1)
+        for i, adjust_bbox in enumerate(adjust_bboxes):
+            xA = max(src_bbox[0], adjust_bbox[0])
+            # print("xA:%.2f" % xA)
+            yA = max(src_bbox[1], adjust_bbox[1])
+            # print("yA:%.2f" % yA)
+            xB = min(src_bbox[0] + src_bbox[2], adjust_bbox[0] + adjust_bbox[2])
+            # print("xB:%.2f" % xB)
+            yB = min(src_bbox[1] + src_bbox[3], adjust_bbox[1] + adjust_bbox[3])
+            # print("yB:%.2f" % yB)
 
-def IOU_check_for_first_frame(src_bbox, adjust_bboxes):
-    print("IoU method(first_frame)")
-    iou_temp = []
-    boxSRCArea = (src_bbox[2] + 1) * (src_bbox[3] + 1)
-    for i, adjust_bbox in enumerate(adjust_bboxes):
-        xA = max(src_bbox[0], adjust_bbox[0])
-        # print("xA:%.2f" % xA)
-        yA = max(src_bbox[1], adjust_bbox[1])
-        # print("yA:%.2f" % yA)
-        xB = min(src_bbox[0] + src_bbox[2], adjust_bbox[0] + adjust_bbox[2])
-        # print("xB:%.2f" % xB)
-        yB = min(src_bbox[1] + src_bbox[3], adjust_bbox[1] + adjust_bbox[3])
-        # print("yB:%.2f" % yB)
+            interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
+            # print("interArea:%.2f" % interArea)
 
-        interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
-        # print("interArea:%.2f" % interArea)
+            boxADJArea = (adjust_bbox[2] + 1) * (adjust_bbox[3] + 1)
+            # compute the intersection over union by taking the intersection
+            # area and dividing it by the sum of prediction  ground-truth
+            # areas - the intersection area
+            iou = interArea / float(boxSRCArea + boxADJArea - interArea)
+            iou_temp.append(iou)
 
-        boxADJArea = (adjust_bbox[2] + 1) * (adjust_bbox[3] + 1)
-        # compute the intersection over union by taking the intersection
-        # area and dividing it by the sum of prediction  ground-truth
-        # areas - the intersection area
-        iou = interArea / float(boxSRCArea + boxADJArea - interArea)
-        iou_temp.append(iou)
+        # if max(iou_temp) > 0:
+        iou_array = np.array(iou_temp)
+        index = np.argmax(iou_array)
+        print("iou_array:")
+        print(iou_array)
 
-    # if max(iou_temp) > 0:
-    iou_array = np.array(iou_temp)
-    index = np.argmax(iou_array)
-    print("iou_array:")
-    print(iou_array)
-
-    if iou_array[index] > 0.5:
-        return adjust_bboxes[index]
-    else:
-        return src_bbox
-
+        if iou_array[index] > 0.5:
+            print("A")
+            return adjust_bboxes[index]
+        else:
+            print("B")
+            return src_bbox
