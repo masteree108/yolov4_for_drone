@@ -10,7 +10,8 @@ if __name__ == '__main__':
     one_core_to_run = True
     if one_core_to_run == True:
         final_bboxes = []
-        yolo_boxes = yolo.run_detection(img)
+        detection_intensity=0
+        yolo_boxes = yolo.run_detection(img,detection_intensity)
     else:
         yolo.run_multi_core_detection_setting(img)
         yolo.run_multi_core_detection(img)
