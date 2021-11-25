@@ -77,6 +77,7 @@ class yolo_object_detection():
         # initialize our lists of detected bounding boxes, confidences,
         # and class IDs, respectively
         boxes = []
+        return_boxes = []
         confidences = []
         classIDs = []
         # The user can select the intensity of detection
@@ -164,9 +165,10 @@ class yolo_object_detection():
                 # x = x + int(w/5)
                 # draw a bounding box rectangle and label on the frame
                 if self.__LABELS[classIDs[i]] == self.__target_label:
+                    return_boxes.append(boxes[i])
                     color = [int(c) for c in self.__COLORS[classIDs[i]]]
                     cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
                     text = "{}: {:.4f}".format(self.__LABELS[classIDs[i]], confidences[i])
                     cv2.putText(frame, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
         cv2.imwrite("yolov4_detection_with_nms.jpg", frame)
-        return boxes
+        return return_boxes
