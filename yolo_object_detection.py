@@ -10,6 +10,7 @@ import cv2
 import os
 import math
 
+
 class yolo_object_detection():
     # private
     __labelsPath = "./yolo-coco_v4/coco.names"
@@ -90,16 +91,16 @@ class yolo_object_detection():
             # full image
             pass
         elif detection_intensity == 1:
-            crop_width = math.floor(W/2)
-            crop_height = math.floor(H/2)
+            crop_width = math.floor(W / 2)
+            crop_height = math.floor(H / 2)
             # construct a blob from the input frame and then perform a forward
             # pass of the YOLO object detector, giving us our bounding boxes
             # and associated probabilities
             # crop small area to improve the effect of yolo
             # crop image size 1920*1080
             # overlap 50%
-            for crop_x in range(0, math.floor(W-(crop_width/2)), math.floor(crop_width/2)) :
-                for crop_y in range(0, math.floor(H-(crop_height/2)), math.floor(crop_height/2)):
+            for crop_x in range(0, math.floor(W - (crop_width / 2)), math.floor(crop_width / 2)):
+                for crop_y in range(0, math.floor(H - (crop_height / 2)), math.floor(crop_height / 2)):
                     # print("crop_y:%d" % crop_y)
                     # print("crop_y + crop_height:%d" % (crop_y + crop_height))
                     # print("crop_x:%d" % crop_x)
@@ -114,16 +115,16 @@ class yolo_object_detection():
                                                                      crop_height, crop_x,
                                                                      crop_y, classIDs)
         elif detection_intensity == 2:
-            crop_width = math.floor(W/4)
-            crop_height = math.floor(W/4)
+            crop_width = math.floor(W / 4)
+            crop_height = math.floor(H / 4)
             # construct a blob from the input frame and then perform a forward
             # pass of the YOLO object detector, giving us our bounding boxes
             # and associated probabilities
             # crop small area to improve the effect of yolo
             # crop image size 960*540
             # overlap 40%
-            for crop_x in range(0, math.floor(W-(crop_width*4/10)), math.floor(crop_width*0.6)):
-                for crop_y in range(0, math.floor(H-(crop_height*4/10)), math.floor(crop_height*0.6)):
+            for crop_x in range(0, math.floor(W - (crop_width * 4 / 10)), math.floor(crop_width * 0.6)):
+                for crop_y in range(0, math.floor(H - (crop_height * 4 / 10)), math.floor(crop_height * 0.6)):
                     # print("crop_y:%d" % crop_y)
                     # print("crop_y + crop_height:%d" % (crop_y + crop_height))
                     # print("crop_x:%d" % crop_x)
