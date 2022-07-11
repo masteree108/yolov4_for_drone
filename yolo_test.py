@@ -9,14 +9,14 @@ if __name__ == '__main__':
     one_core_to_run = True
     if one_core_to_run == True:
         final_bboxes = []
-        detection_intensity = 2
+        detection_intensity = 0  # 0:Org IMG     1:3*3    2:6*6
         yolo_boxes = yolo.run_detection(img, detection_intensity)
         if detection_intensity == 0:
-            print("weak")
+            print("Don't crop detection by org img")
         elif detection_intensity == 1:
-            print("medium")
+            print("Crop to 3*3")
         elif detection_intensity == 2:
-            print("strong")
+            print("Crop to 6*6")
         print("detected person qty:%d" % len(yolo_boxes))
     else:
         yolo.run_multi_core_detection_setting(img)
